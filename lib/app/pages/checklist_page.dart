@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:developer';
+
 import 'package:checklist/app/logic/checklist/checklist_cubit.dart';
 import 'package:checklist/app/widget/input_widget.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,7 @@ import '../logic/add_checklist_item/add_checklist_cubit.dart';
 import '../logic/checklist/checklist_state.dart';
 import '../logic/delete_checklist_item/delete_checklist_cubit.dart';
 import '../logic/update_checklist_item/update_checklist_cubit.dart';
+import '../services/local_database_service.dart';
 import '../widget/list_section_widget.dart';
 
 class ChecklistPage extends StatefulWidget {
@@ -80,12 +83,32 @@ class _ChecklistPageState extends State<ChecklistPage> {
   void initState() {
     super.initState();
 
+    final service = context.read<LocalDatabaseService>();
+
+    service.init().then(
+      (value) {
+        service.fetch(collectionName: 'checklist').then(
+          (value) {
+            log(value.toString());
+          },
+        );
+      },
+    );
     context.read<FetchChecklistCubit>().fetchItems();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () {
+          context.read<LocalDatabaseService>().add(
+            data: {'id': 1, 'name': 'teste'},
+            collectionName: 'checklist',
+          );
+        },
+      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
