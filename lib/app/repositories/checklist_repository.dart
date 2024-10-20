@@ -13,8 +13,11 @@ class ChecklistRepository {
   });
 
   Future<List<ShoppingItemEntity>> fetchAll() async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    return List<ShoppingItemEntity>.from(_items);
+    final result = await localDatabaseService.fetch(
+      collectionName: collectionName,
+    );
+    final data = result.map(ShoppingItemEntity.fromMap).toList();
+    return data;
   }
 
   Future<void> addItem(ShoppingItemEntity item) async {
@@ -25,7 +28,7 @@ class ChecklistRepository {
   }
 
   Future<ShoppingItemEntity> updateItem({
-    required int id,
+    required String id,
     String? title,
     bool? isCompleted,
   }) async {
@@ -43,7 +46,7 @@ class ChecklistRepository {
     }
   }
 
-  Future<void> deleteItem(int id) async {
+  Future<void> deleteItem(String id) async {
     await Future.delayed(const Duration(milliseconds: 100));
     _items.removeWhere((item) => item.id == id);
   }

@@ -1,5 +1,5 @@
 class ShoppingItemEntity {
-  int? id;
+  String? id;
   String title;
   DateTime createdAt;
   bool isCompleted;
@@ -12,7 +12,7 @@ class ShoppingItemEntity {
   });
 
   ShoppingItemEntity copyWith({
-    int? id,
+    String? id,
     String? title,
     DateTime? createdAt,
     bool? isCompleted,
@@ -31,5 +31,14 @@ class ShoppingItemEntity {
       'createdAt': createdAt.microsecondsSinceEpoch,
       'isCompleted': isCompleted,
     };
+  }
+
+  factory ShoppingItemEntity.fromMap(Map<String, dynamic> map) {
+    return ShoppingItemEntity(
+      title: map['title'],
+      createdAt: DateTime.fromMicrosecondsSinceEpoch(map['createdAt']),
+      isCompleted: map['isCompleted'],
+      id: map['id'],
+    );
   }
 }
