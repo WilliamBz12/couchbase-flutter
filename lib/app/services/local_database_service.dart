@@ -61,4 +61,15 @@ class LocalDatabaseService {
       await collection.saveDocument(updatedDoc);
     }
   }
+
+  Future<void> deleteItem({
+    required String id,
+    required String collectionName,
+  }) async {
+    final collection = await _database!.createCollection(collectionName);
+    final doc = await collection.document(id);
+    if (doc != null) {
+      await collection.deleteDocument(doc);
+    }
+  }
 }

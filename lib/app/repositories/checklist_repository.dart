@@ -2,8 +2,6 @@ import 'package:checklist/app/entities/shopping_item_entity.dart';
 import 'package:checklist/app/services/local_database_service.dart';
 
 class ChecklistRepository {
-  final List<ShoppingItemEntity> _items = [];
-
   final LocalDatabaseService localDatabaseService;
 
   static const collectionName = 'checklist';
@@ -43,7 +41,9 @@ class ChecklistRepository {
   }
 
   Future<void> deleteItem(String id) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    _items.removeWhere((item) => item.id == id);
+    await localDatabaseService.deleteItem(
+      id: id,
+      collectionName: collectionName,
+    );
   }
 }
