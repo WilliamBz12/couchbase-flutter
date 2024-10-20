@@ -22,7 +22,11 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider(create: (context) => LocalDatabaseService()),
         // Fornece o ChecklistRepository
-        Provider(create: (context) => ChecklistRepository()),
+        Provider(
+          create: (context) => ChecklistRepository(
+            localDatabaseService: context.read<LocalDatabaseService>(),
+          ),
+        ),
 
         // Fornece os Cubits, que usam o mesmo repositório
         BlocProvider(
@@ -58,7 +62,7 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: ChecklistPage(),
+        home: const ChecklistPage(),
       ),
     );
   }

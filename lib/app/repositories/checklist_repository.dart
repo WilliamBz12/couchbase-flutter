@@ -1,7 +1,16 @@
 import 'package:checklist/app/entities/shopping_item_entity.dart';
+import 'package:checklist/app/services/local_database_service.dart';
 
 class ChecklistRepository {
   final List<ShoppingItemEntity> _items = [];
+
+  final LocalDatabaseService localDatabaseService;
+
+  static const collectionName = 'checklist';
+
+  ChecklistRepository({
+    required this.localDatabaseService,
+  });
 
   Future<List<ShoppingItemEntity>> fetchAll() async {
     await Future.delayed(const Duration(milliseconds: 100));
@@ -9,8 +18,10 @@ class ChecklistRepository {
   }
 
   Future<void> addItem(ShoppingItemEntity item) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    _items.add(item.copyWith(id: _items.length + 1));
+    await localDatabaseService.add(
+      data: item.toMap(),
+      collectionName: collectionName,
+    );
   }
 
   Future<ShoppingItemEntity> updateItem({

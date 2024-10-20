@@ -100,15 +100,6 @@ class _ChecklistPageState extends State<ChecklistPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          context.read<LocalDatabaseService>().add(
-            data: {'id': 1, 'name': 'teste'},
-            collectionName: 'checklist',
-          );
-        },
-      ),
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
