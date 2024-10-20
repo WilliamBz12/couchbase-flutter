@@ -27,23 +27,19 @@ class ChecklistRepository {
     );
   }
 
-  Future<ShoppingItemEntity> updateItem({
+  Future<void> updateItem({
     required String id,
     String? title,
     bool? isCompleted,
   }) async {
-    await Future.delayed(const Duration(milliseconds: 100));
-    final index = _items.indexWhere((item) => item.id == id);
-    if (index != -1) {
-      _items[index] = _items[index].copyWith(
-        title: title,
-        isCompleted: isCompleted,
-      );
-
-      return _items[index];
-    } else {
-      throw Exception();
-    }
+    await localDatabaseService.updateItem(
+      id: id,
+      collectionName: collectionName,
+      data: {
+        if (title != null) 'title': title,
+        if (isCompleted != null) 'isCompleted': isCompleted,
+      },
+    );
   }
 
   Future<void> deleteItem(String id) async {

@@ -41,4 +41,24 @@ class LocalDatabaseService {
             })
         .toList();
   }
+
+  Future<void> updateItem({
+    required String id,
+    required String collectionName,
+    required Map<String, dynamic> data,
+  }) async {
+    final collection = await _database!.createCollection(collectionName);
+    final doc = await collection.document(id);
+
+    if (doc != null) {
+      final updatedDoc = doc.toMutable();
+      data.forEach((key, value) {
+        updatedDoc.setValue(
+          value,
+          key: key,
+        );
+      });
+      await collection.saveDocument(updatedDoc);
+    }
+  }
 }
