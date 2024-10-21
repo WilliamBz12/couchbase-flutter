@@ -1,13 +1,17 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:cbl/cbl.dart';
 import 'package:checklist/app/services/cbl_constants.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 const String databaseUrl =
     'wss://a2qoqndw59kr6hsm.apps.cloud.couchbase.com:4984/checklist-app-endpoint';
 
 class LocalDatabaseService {
   Database? _database;
+  StreamSubscription<List<ConnectivityResult>>? networkStream;
+  Replicator? replicator;
 
   Future<void> init() async {
     // Inicia ou cria um banco de dados
@@ -43,9 +47,9 @@ class LocalDatabaseService {
         ),
       );
 
-    final replicator = await Replicator.createAsync(config);
+    replicator = await Replicator.createAsync(config);
 
-    replicator.addChangeListener((change) {
+    replicator?.addChangeListener((change) {
       if (change.status.error != null) {
         log('Erro de sincronização: ${change.status.error}');
       } else {
@@ -56,7 +60,21 @@ class LocalDatabaseService {
       }
     });
 
-    await replicator.start();
+    await replicator?.start();
+  }
+
+  Future<void> startListenConnection() async {
+    networkStream = Connectivity().onConnectivityChanged.listen(
+      (List<ConnectivityResult> result) {
+        if (result.contains(ConnectivityResult.none)) {
+          log('Sem conexão. Operações offline ativadas.');
+          replicator?.stop();
+        } else {
+          log('Conexão reativada');
+          replicator?.start();
+        }
+      },
+    );
   }
 
   Future<MutableDocument> add({

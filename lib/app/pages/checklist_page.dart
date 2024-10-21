@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:developer';
+
 import 'package:checklist/app/logic/checklist/checklist_cubit.dart';
 import 'package:checklist/app/services/cbl_constants.dart';
 import 'package:checklist/app/widget/input_widget.dart';
@@ -22,7 +24,8 @@ class ChecklistPage extends StatefulWidget {
   State<ChecklistPage> createState() => _ChecklistPageState();
 }
 
-class _ChecklistPageState extends State<ChecklistPage> {
+class _ChecklistPageState extends State<ChecklistPage>
+    with WidgetsBindingObserver {
   final textController = TextEditingController();
 
   // ON/OFF CHECK ITEM
@@ -78,21 +81,50 @@ class _ChecklistPageState extends State<ChecklistPage> {
     context.read<FetchChecklistCubit>().fetchItems();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    init();
-  }
-
   Future<void> init() async {
-    final service = context.read<LocalDatabaseService>();
-
     await context.read<FetchChecklistCubit>().fetchItems();
+
+    final service = context.read<LocalDatabaseService>();
 
     service.startReplication(
       collectionName: CblConstants.collection,
       onUpdated: context.read<FetchChecklistCubit>().fetchItems,
     );
+
+    service.startListenConnection();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+
+    init();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    log('Página fechada. Parando replicação...');
+
+    WidgetsBinding.instance.removeObserver(this);
+
+    final service = context.read<LocalDatabaseService>();
+    service.startListenConnection();
+    service.replicator?.close();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final service = context.read<LocalDatabaseService>();
+
+    if (state == AppLifecycleState.paused) {
+      log('App pausado. Interrompendo replicação...');
+      service.replicator?.stop();
+    } else if (state == AppLifecycleState.resumed) {
+      log('App retomado. Reiniciando replicação...');
+      service.replicator?.start();
+    }
   }
 
   @override
