@@ -35,9 +35,11 @@ class ShoppingItemEntity {
 
   factory ShoppingItemEntity.fromMap(Map<String, dynamic> map) {
     return ShoppingItemEntity(
-      title: map['title'],
-      createdAt: DateTime.fromMicrosecondsSinceEpoch(map['createdAt']),
-      isCompleted: map['isCompleted'],
+      title: map['title'] ?? '',
+      createdAt: map['createdAt'] != null
+          ? DateTime.fromMicrosecondsSinceEpoch(map['createdAt'])
+          : DateTime.now(),
+      isCompleted: map['isCompleted'] ?? false,
       id: map['id'],
     );
   }
