@@ -44,6 +44,11 @@ class LocalDatabaseService {
         collection,
         CollectionConfiguration(
           channels: [CblConstants.channel], // Usa canal "checklist"
+          conflictResolver: ConflictResolver.from(
+            (conflict) {
+              return conflict.remoteDocument ?? conflict.localDocument;
+            },
+          ),
         ),
       );
 
@@ -88,7 +93,10 @@ class LocalDatabaseService {
       CblConstants.scope,
     );
     final doc = MutableDocument(data);
-    await collection.saveDocument(doc);
+    await collection.saveDocument(
+      doc,
+      ConcurrencyControl.lastWriteWins,
+    );
     return doc;
   }
 
@@ -140,7 +148,10 @@ class LocalDatabaseService {
           key: key,
         );
       });
-      await collection.saveDocument(updatedDoc);
+      await collection.saveDocument(
+        updatedDoc,
+        ConcurrencyControl.lastWriteWins,
+      );
     }
   }
 
@@ -152,7 +163,10 @@ class LocalDatabaseService {
         await _database!.createCollection(collectionName, CblConstants.scope);
     final doc = await collection.document(id);
     if (doc != null) {
-      await collection.deleteDocument(doc);
+      await collection.deleteDocument(
+        doc,
+        ConcurrencyControl.lastWriteWins,
+      );
     }
   }
 }
