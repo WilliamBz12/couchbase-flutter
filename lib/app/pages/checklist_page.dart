@@ -1,8 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:developer';
-
 import 'package:checklist/app/logic/checklist/checklist_cubit.dart';
+import 'package:checklist/app/services/cbl_constants.dart';
 import 'package:checklist/app/widget/input_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -82,19 +81,18 @@ class _ChecklistPageState extends State<ChecklistPage> {
   @override
   void initState() {
     super.initState();
+    init();
+  }
 
+  Future<void> init() async {
     final service = context.read<LocalDatabaseService>();
 
-    service.init().then(
-      (value) {
-        service.fetch(collectionName: 'checklist').then(
-          (value) {
-            log(value.toString());
-          },
-        );
-      },
+    await context.read<FetchChecklistCubit>().fetchItems();
+
+    service.startReplication(
+      collectionName: CblConstants.collection,
+      onUpdated: context.read<FetchChecklistCubit>().fetchItems,
     );
-    context.read<FetchChecklistCubit>().fetchItems();
   }
 
   @override
